@@ -111,6 +111,10 @@ footer button{background:none;border:0;color:#5d7d74;font-size:11.5px;text-decor
 #restoreFile{display:none}
 .empty{text-align:center;color:#8a8677;font-size:15px;padding:60px 20px;line-height:1.6}
 .hint{font-size:11.5px;color:var(--dim);text-align:center;margin:-4px 0 12px}
+.goto{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--dim);flex-wrap:wrap}
+.goto input{width:72px;padding:9px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.07);background:var(--panel);color:#cfe3dc;font:inherit;font-size:15px;text-align:center}
+.goto button{padding:9px 16px;border-radius:9px;border:1px solid var(--accent);background:var(--accent);color:#0d1a16;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+#gotoMsg{flex-basis:100%;min-height:16px;font-size:12px}
 </style>
 </head>
 <body>
@@ -140,6 +144,7 @@ footer button{background:none;border:0;color:#5d7d74;font-size:11.5px;text-decor
   <button onclick="next()">Next →</button>
 </div>
 
+<div class="goto"><label for="gotoN">Go to question</label><input id="gotoN" type="number" inputmode="numeric" min="1" max="50" placeholder="1–50"><button id="gotoBtn" type="button">Go</button><span id="gotoMsg"></span></div>
 <footer>
   <button onclick="backup()">Backup</button>
   <button onclick="document.getElementById('restoreFile').click()">Restore</button>
@@ -328,6 +333,22 @@ function resetAll(){
 load();
 buildOrder(false);
 render();
+</script>
+<script>
+(function(){
+  var N=50, inp=document.getElementById('gotoN'), msg=document.getElementById('gotoMsg');
+  function jumpTo(v){ pile=state[v]; order=inPile(pile).map(function(x){return x.n;}); idx=Math.max(0,order.indexOf(v)); revealed=false; picked=null; render(); return pile.charAt(0).toUpperCase()+pile.slice(1); }
+  function go(){
+    var v=parseInt(inp.value,10);
+    if(!(v>=1&&v<=N)){ msg.textContent='Enter a number from 1 to '+N; return; }
+    var name=jumpTo(v);
+    msg.textContent='Question '+v+' — in '+name;
+    inp.value=''; inp.blur(); window.scrollTo(0,0);
+  }
+  document.getElementById('gotoBtn').addEventListener('click',go);
+  inp.addEventListener('keydown',function(e){ e.stopPropagation(); if(e.key==='Enter'){ e.preventDefault(); go(); } });
+  inp.addEventListener('input',function(){ msg.textContent=''; });
+})();
 </script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script></body>
 </html>
